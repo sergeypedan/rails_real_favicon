@@ -7,7 +7,7 @@ require 'base64'
 
 class FaviconGenerator < Rails::Generators::Base
   API_KEY = '04641dc33598f5463c2f1ff49dd9e4a617559f4b'
- 
+
   PATH_UNIQUE_KEY = '/Dfv87ZbNh2'
 
   class_option(:timeout, type: :numeric, aliases: '-t', default: 30)
@@ -42,6 +42,10 @@ class FaviconGenerator < Rails::Generators::Base
         raise RuntimeError.new("Operation timed out after #{timeout} seconds, pass a `-t` option for a longer timeout")
       end
     end
+
+    # Sometimes API fails to answer within 30 seconds, so let’s fail with more grace
+    result = resp['favicon_generation_result']["result"]
+    fail StandardError, ["RealFaviconGenerator server responded with an error:", result["error_message"]].join("\n") if result["status"] == "error"
 
     zip = resp['favicon_generation_result']['favicon']['package_url']
     FileUtils.mkdir_p('app/assets/images/favicon')
