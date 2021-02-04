@@ -86,7 +86,7 @@ class FaviconGenerator < Rails::Generators::Base
     end
 
     File.open(local_path, "wb") do |saved_file|
-      open(url, "rb") do |read_file|
+      URI.open(url, "rb") do |read_file|
         saved_file.write(read_file.read)
       end
     end
